@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -12,8 +13,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float dashingPower = 10f;
     [SerializeField] private float dashingTime = 0.01f;
     [SerializeField] private float dashingCoolDown = 0f;
-    [SerializeField] Animator animator;
-    [SerializeField] AudioSource whoosh;
+    private Animator animator;
+    private AudioSource whoosh;
 
     public ParticleSystem dust;
     public ParticleSystem vDust;
@@ -27,7 +28,9 @@ public class Player : MonoBehaviour
     public float dashDistance = 2f;   // Distancia exacta del dash (2 bloques)
     public float dashTime = 0.2f;     // Tiempo que dura el dash
     private bool isDashing = false;
-    private float stopPercentage = 0.4f;
+    private float stopPercentage = 0.45f;
+    static GameObject current = null;
+
 
 
     private void OnEnable()
@@ -36,6 +39,14 @@ public class Player : MonoBehaviour
         inputManager.OnDashRight += DashRight;
         inputManager.OnMomentum += Momentum;
         inputManager.OnDirection += Direction;
+    }
+
+    private void OnDisable()
+    {
+        inputManager.OnDashLeft -= DashLeft;
+        inputManager.OnDashRight -= DashRight;
+        inputManager.OnMomentum -= Momentum;
+        inputManager.OnDirection -= Direction;
     }
 
     private void Momentum()
@@ -76,7 +87,14 @@ public class Player : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        originalGravity = rb.gravityScale;        
+        animator = rb.GetComponent<Animator>();
+        Time.timeScale = 1;
+    }
+
+    private void Awake()
+    {
+        whoosh = GetComponent<AudioSource>();
+        DontDestroyOnLoad(this.gameObject);
     }
 
     // Update is called once per frame
@@ -134,8 +152,18 @@ public class Player : MonoBehaviour
         if (collision.gameObject.tag == "rocks")
         {
             animator.SetTrigger("isDead");
-            Debug.Log("collision");
+            StartCoroutine(DeathCoroutine());
+        
         }
+    }
+
+    IEnumerator DeathCoroutine() {
+        inputManager.OnDashLeft -= DashLeft;
+        inputManager.OnDashRight -= DashRight;
+        inputManager.OnMomentum -= Momentum;
+        yield return new WaitForSeconds(1f);
+        Destroy(gameObject);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);
     }
 
 }
