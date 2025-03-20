@@ -14,7 +14,6 @@ public class Player : MonoBehaviour
     [SerializeField] private float dashingTime = 0.01f;
     [SerializeField] private float dashingCoolDown = 0f;
     private Animator animator;
-    private AudioSource whoosh;
 
     public ParticleSystem dust;
     public ParticleSystem vDust;
@@ -39,6 +38,8 @@ public class Player : MonoBehaviour
         inputManager.OnDashRight += DashRight;
         inputManager.OnMomentum += Momentum;
         inputManager.OnDirection += Direction;
+       // inputManager.OnPause += Pause;
+
     }
 
     private void OnDisable()
@@ -47,6 +48,7 @@ public class Player : MonoBehaviour
         inputManager.OnDashRight -= DashRight;
         inputManager.OnMomentum -= Momentum;
         inputManager.OnDirection -= Direction;
+       // inputManager.OnPause -= Pause;
     }
 
     private void Momentum()
@@ -56,11 +58,22 @@ public class Player : MonoBehaviour
         vDust.Play();
     }
 
+    private void Pause()
+    {
+        if (Time.timeScale == 0) {
+            Time.timeScale = 1;
+        }
+        else 
+        {
+            Time.timeScale = 0;
+        }
+    }
+
     private void DashRight()
     {
         if (!isDashing)
         {
-            whoosh.Play();
+            SoundManager.instance.PlaySfx(4) ;
             dust.Play();
             animator.SetTrigger("right");
             StartCoroutine(DashCoroutine(1));
@@ -71,7 +84,7 @@ public class Player : MonoBehaviour
     {
         if (!isDashing)
         {
-            whoosh.Play();
+            SoundManager.instance.PlaySfx(4);
             dust.Play();
             animator.SetTrigger("left");
             StartCoroutine(DashCoroutine(-1));
@@ -93,7 +106,6 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        whoosh = GetComponent<AudioSource>();
         DontDestroyOnLoad(this.gameObject);
     }
 
@@ -112,16 +124,14 @@ public class Player : MonoBehaviour
 
         // Desactivar gravedad mientras dura el dash
         rb.gravityScale = 0;
-        //trailRenderer.emitting = true;
+
         while (elapsedTime < dashTime)
         {
             elapsedTime += Time.deltaTime;
             rb.position = Vector2.Lerp(startPosition, targetPosition, elapsedTime / dashTime);
             yield return null;
         }
-        Debug.Log("velocidad:"+rb.velocity.y);
         rb.velocity = new Vector2(0f, rb.velocity.y-rb.velocity.y*stopPercentage);
-        //trailRenderer.emitting = false;
 
         // Asegurar que la posición final sea exacta
         rb.position = targetPosition;
@@ -134,12 +144,12 @@ public class Player : MonoBehaviour
 
     private IEnumerator PauseMomentum()
     {
-        whoosh.Play();
+        SoundManager.instance.PlaySfx(4);
         canDash = false;
         rb.velocity = new Vector2(0, 2f);
         //trailRenderer.emitting = true;
         yield return new WaitForSeconds(0.25f);
-        whoosh.Play();
+        SoundManager.instance.PlaySfx(4);
         vDust.Play();
         rb.velocity = new Vector2(0, 3f);
         //.emitting = false;
@@ -161,6 +171,7 @@ public class Player : MonoBehaviour
         inputManager.OnDashLeft -= DashLeft;
         inputManager.OnDashRight -= DashRight;
         inputManager.OnMomentum -= Momentum;
+        SoundManager.instance.PlaySfx(0);
         yield return new WaitForSeconds(1f);
         Destroy(gameObject);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex, LoadSceneMode.Single);

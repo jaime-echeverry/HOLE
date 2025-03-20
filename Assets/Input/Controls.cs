@@ -62,6 +62,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""9cc33c81-4cb5-4530-b70d-2348ef086ed7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,28 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""Momentum"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cbfe71b3-d064-4225-bb8a-aedf0d247e69"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7da5c208-c27a-47b8-8e69-4ca52c353361"",
+                    ""path"": ""<Keyboard>/p"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -247,6 +278,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Base_DashLeft = m_Base.FindAction("Dash Left", throwIfNotFound: true);
         m_Base_DashRight = m_Base.FindAction("Dash Right", throwIfNotFound: true);
         m_Base_Momentum = m_Base.FindAction("Momentum", throwIfNotFound: true);
+        m_Base_Pause = m_Base.FindAction("Pause", throwIfNotFound: true);
         // Menu
         m_Menu = asset.FindActionMap("Menu", throwIfNotFound: true);
         m_Menu_Pause = m_Menu.FindAction("Pause", throwIfNotFound: true);
@@ -315,6 +347,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Base_DashLeft;
     private readonly InputAction m_Base_DashRight;
     private readonly InputAction m_Base_Momentum;
+    private readonly InputAction m_Base_Pause;
     public struct BaseActions
     {
         private @Controls m_Wrapper;
@@ -323,6 +356,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         public InputAction @DashLeft => m_Wrapper.m_Base_DashLeft;
         public InputAction @DashRight => m_Wrapper.m_Base_DashRight;
         public InputAction @Momentum => m_Wrapper.m_Base_Momentum;
+        public InputAction @Pause => m_Wrapper.m_Base_Pause;
         public InputActionMap Get() { return m_Wrapper.m_Base; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -344,6 +378,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Momentum.started += instance.OnMomentum;
             @Momentum.performed += instance.OnMomentum;
             @Momentum.canceled += instance.OnMomentum;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         private void UnregisterCallbacks(IBaseActions instance)
@@ -360,6 +397,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Momentum.started -= instance.OnMomentum;
             @Momentum.performed -= instance.OnMomentum;
             @Momentum.canceled -= instance.OnMomentum;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         public void RemoveCallbacks(IBaseActions instance)
@@ -429,6 +469,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         void OnDashLeft(InputAction.CallbackContext context);
         void OnDashRight(InputAction.CallbackContext context);
         void OnMomentum(InputAction.CallbackContext context);
+        void OnPause(InputAction.CallbackContext context);
     }
     public interface IMenuActions
     {

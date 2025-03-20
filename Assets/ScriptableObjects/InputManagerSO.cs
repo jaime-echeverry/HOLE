@@ -9,6 +9,7 @@ public class InputManagerSO : ScriptableObject
     public event Action OnDashLeft;
     public event Action OnDashRight;
     public event Action OnMomentum;
+    public event Action OnPause;
     public event Action<Vector2> OnDirection;
 
     private void OnEnable()
@@ -20,6 +21,7 @@ public class InputManagerSO : ScriptableObject
         holeControls.Base.DashLeft.started += DashLeft;
         holeControls.Base.DashRight.started += DashRight;
         holeControls.Base.Momentum.started += Momentum;
+        holeControls.Base.Pause.started += Pause;
     }
 
     private void Momentum(InputAction.CallbackContext context)
@@ -40,5 +42,10 @@ public class InputManagerSO : ScriptableObject
     private void Direction(InputAction.CallbackContext context)
     {
         OnDirection?.Invoke(context.ReadValue<Vector2>());
+    }
+
+    private void Pause(InputAction.CallbackContext context)
+    {
+        OnPause?.Invoke();
     }
 }
