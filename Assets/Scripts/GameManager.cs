@@ -7,7 +7,10 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private InputManagerSO inputManager;
     [SerializeField] private GameObject pausePanel;
-
+    [SerializeField] private GameObject hudPanel;
+    [SerializeField] private GameObject controlsPanel;
+    [SerializeField] private GameObject mainPanel;
+    
 
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
@@ -46,10 +49,12 @@ public class GameManager : MonoBehaviour
         if (Time.timeScale == 0)
         {
             pausePanel.SetActive(false);
+            hudPanel.SetActive(true);
             Time.timeScale = 1;
         }
         else
         {
+            hudPanel.SetActive(false);
             pausePanel.SetActive(true);
             Time.timeScale = 0;
         }
@@ -71,5 +76,40 @@ public class GameManager : MonoBehaviour
     public void QuitGame() {
         SoundManager.instance.PlaySfx(2);
         Application.Quit();
+    }
+
+    public void Autum() {
+        SoundManager.instance.PlaySfx(2);
+        SoundManager.instance.PlayMusic(0);
+        SceneManager.LoadScene("Autumm-level1");
+    }
+
+    public void Controls()
+    {
+        SoundManager.instance.PlaySfx(2);
+        controlsPanel.SetActive(true);
+        mainPanel.SetActive(false);
+
+    }
+
+    public void ReturnToMain()
+    {
+        SoundManager.instance.PlaySfx(2);
+        controlsPanel.SetActive(false);
+        mainPanel.SetActive(true);
+
+    }
+
+    public void ReturnToMainMenu()
+    {
+        Destroy(GameObject.FindWithTag("Player"));
+        Destroy(GameObject.FindWithTag("Crab"));
+        SoundManager.instance.PlayMusic(1);
+        SoundManager.instance.PlaySfx(2);
+        SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
+    }
+
+    public void Crystal() {
+        SoundManager.instance.PlaySfx(2);
     }
 }
