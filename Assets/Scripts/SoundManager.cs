@@ -9,7 +9,7 @@ public class SoundManager : MonoBehaviour
     public static SoundManager instance;
     // Start is called before the first frame update
     public AudioClip[] musicSounds,sfxSounds;
-    public AudioSource audioSource, sfxSource;
+    public AudioSource audioSource, sfxSource, sfxsourceDash;
 
 
     private void Awake()
@@ -55,6 +55,21 @@ public class SoundManager : MonoBehaviour
         {
             sfxSource.clip = clip;
             sfxSource.Play();
+        }
+    }
+
+    public void PlaySfxAlone(int pos)
+    {
+        AudioClip clip = sfxSounds[pos];
+
+        if (clip == null)
+        {
+            Debug.Log("Audio not found");
+        }
+        else
+        {
+            sfxsourceDash.clip = clip;
+            sfxsourceDash.Play();
         }
     }
 

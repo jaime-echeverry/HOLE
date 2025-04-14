@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
     }
 
     public void Autum() {
+        Destroy(GameObject.FindWithTag("Crab"));
         SoundManager.instance.PlaySfx(2);
         SoundManager.instance.PlayMusic(0);
         SceneManager.LoadScene("Autumm-level1");
@@ -103,9 +104,9 @@ public class GameManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         Destroy(GameObject.FindWithTag("Player"));
-        Destroy(GameObject.FindWithTag("Crab"));
         SoundManager.instance.PlayMusic(1);
         SoundManager.instance.PlaySfx(2);
+        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenu", LoadSceneMode.Single);
     }
 

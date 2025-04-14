@@ -6,6 +6,7 @@ public class Spawner : MonoBehaviour
 {
     [SerializeField]
     GameObject bat;
+    GameObject bt;
     // Start is called before the first frame update
     void Start()
     {
@@ -15,7 +16,6 @@ public class Spawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
     }
 
     IEnumerator spawnobject()
@@ -30,9 +30,10 @@ public class Spawner : MonoBehaviour
             ypos = Random.Range(-4.5f, 4.5f);
 
             Vector2 pos = new Vector2(xpos, ypos);
-            Instantiate(bat, pos, Quaternion.identity);
+            bt = Instantiate(bat, pos, Quaternion.identity);
 
-            yield return new WaitForSeconds(2.25f);
+            yield return new WaitForSeconds(6.25f);
+            Destroy(bt);
         }
     }
 }

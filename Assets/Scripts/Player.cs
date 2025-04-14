@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
@@ -30,7 +31,8 @@ public class Player : MonoBehaviour
     private float stopPercentage = 0.45f;
     static GameObject current = null;
 
-
+    private float dashValue = 20f;
+    private float dashMomentumValue = 40f;
 
     private void OnEnable()
     {
@@ -73,7 +75,7 @@ public class Player : MonoBehaviour
     {
         if (!isDashing)
         {
-            SoundManager.instance.PlaySfx(4) ;
+            SoundManager.instance.PlaySfxAlone(4) ;
             dust.Play();
             animator.SetTrigger("right");
             StartCoroutine(DashCoroutine(1));
@@ -84,7 +86,7 @@ public class Player : MonoBehaviour
     {
         if (!isDashing)
         {
-            SoundManager.instance.PlaySfx(4);
+            SoundManager.instance.PlaySfxAlone(4);
             dust.Play();
             animator.SetTrigger("left");
             StartCoroutine(DashCoroutine(-1));
@@ -117,44 +119,52 @@ public class Player : MonoBehaviour
 
     IEnumerator DashCoroutine(int direction)
     {
-        isDashing = true;
-        float elapsedTime = 0f;
-        Vector2 startPosition = rb.position;
-        Vector2 targetPosition = startPosition + new Vector2(dashDistance * direction, 0);
-
-        // Desactivar gravedad mientras dura el dash
-        rb.gravityScale = 0;
-
-        while (elapsedTime < dashTime)
+        if (FuelManager.Instance.fuel >= dashValue)
         {
-            elapsedTime += Time.deltaTime;
-            rb.position = Vector2.Lerp(startPosition, targetPosition, elapsedTime / dashTime);
-            yield return null;
+            isDashing = true;
+            float elapsedTime = 0f;
+            Vector2 startPosition = rb.position;
+            Vector2 targetPosition = startPosition + new Vector2(dashDistance * direction, 0);
+
+            // Desactivar gravedad mientras dura el dash
+            rb.gravityScale = 0;
+            FuelManager.Instance.SpentFuel(20f);
+
+            while (elapsedTime < dashTime)
+            {
+                elapsedTime += Time.deltaTime;
+                rb.position = Vector2.Lerp(startPosition, targetPosition, elapsedTime / dashTime);
+                yield return null;
+            }
+            rb.velocity = new Vector2(0f, rb.velocity.y - rb.velocity.y * stopPercentage);
+
+            // Asegurar que la posición final sea exacta
+            rb.position = targetPosition;
+
+            // Restaurar la gravedad
+            rb.gravityScale = originalGravity;
+            yield return new WaitForSeconds(dashingCoolDown);
+            isDashing = false;
         }
-        rb.velocity = new Vector2(0f, rb.velocity.y-rb.velocity.y*stopPercentage);
-
-        // Asegurar que la posición final sea exacta
-        rb.position = targetPosition;
-
-        // Restaurar la gravedad
-        rb.gravityScale = originalGravity;
-        yield return new WaitForSeconds(dashingCoolDown);
-        isDashing = false;
     }
 
     private IEnumerator PauseMomentum()
     {
-        SoundManager.instance.PlaySfx(4);
-        canDash = false;
-        rb.velocity = new Vector2(0, 2f);
-        //trailRenderer.emitting = true;
-        yield return new WaitForSeconds(0.25f);
-        SoundManager.instance.PlaySfx(4);
-        vDust.Play();
-        rb.velocity = new Vector2(0, 3f);
-        //.emitting = false;
-        rb.gravityScale = originalGravity;
-        canDash = true;
+        if (FuelManager.Instance.fuel >= dashMomentumValue)
+        {
+            FuelManager.Instance.SpentFuel(40f);
+            SoundManager.instance.PlaySfxAlone(4);
+            canDash = false;
+            rb.velocity = new Vector2(0, 2f);
+            //trailRenderer.emitting = true;
+            yield return new WaitForSeconds(0.25f);
+            SoundManager.instance.PlaySfxAlone(4);
+            vDust.Play();
+            rb.velocity = new Vector2(0, 3f);
+            //.emitting = false;
+            rb.gravityScale = originalGravity;
+            canDash = true;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -162,8 +172,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.tag == "rocks")
         {
             animator.SetTrigger("isDead");
-            StartCoroutine(DeathCoroutine());
-        
+            StartCoroutine(DeathCoroutine());   
         }
     }
 

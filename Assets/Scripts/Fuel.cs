@@ -15,12 +15,4 @@ public class Fuel : MonoBehaviour
     {
         
     }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Player")) {
-            Debug.Log("gema");
-            Destroy(this.gameObject);
-        }
-    }
 }
